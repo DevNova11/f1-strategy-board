@@ -1,0 +1,18 @@
+# F1 Strategy Board - pinned runtime dependencies (Python 3.11+)
+pandas==2.3.3
+numpy==2.4.6
+scipy==1.17.1
+scikit-learn==1.9.1
+statsmodels==0.15.0
+plotly==7.1.0
+streamlit==1.65.0
+fastf1==3.8.3
+requests==2.34.2
+shap==0.51.0
+pyarrow==25.0.1
+
+# tests and notebook
+pytest==9.1.1
+nbformat==5.11.1
+nbclient==0.11.0
+ipykernel==7.4.0

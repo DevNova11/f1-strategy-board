@@ -1,0 +1,20 @@
+# environment
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# downloaded and derived data (regenerate with `python -m src.fetch` and `python -m src.pipeline`)
+data/raw/
+data/processed/
+data/synthetic/
+data/watchlist/*.csv
+
+# generated reports
+reports/*.html
+reports/*.json
+reports/*.md
+
+# local Streamlit secrets
+.streamlit/secrets.toml

@@ -1,0 +1,48 @@
+# F1 Strategy Board theme: near-black surface, F1 red primary, electric cyan secondary.
+[theme]
+base = "dark"
+primaryColor = "#E10600"
+backgroundColor = "#0E0E10"
+secondaryBackgroundColor = "#18181C"
+textColor = "#ECECEF"
+linkColor = "#00E5FF"
+borderColor = "#2B2B31"
+codeBackgroundColor = "#17171B"
+dataframeBorderColor = "#2A2A31"
+dataframeHeaderBackgroundColor = "#17171B"
+
+font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+headingFont = "'Titillium Web':https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+baseFontSize = 15
+headingFontSizes = ["34px", "24px", "19px", "16px", "15px", "13px"]
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+linkUnderline = false
+
+baseRadius = "10px"
+buttonRadius = "8px"
+showWidgetBorder = true
+showSidebarBorder = true
+
+redColor = "#E10600"
+blueColor = "#00E5FF"
+greenColor = "#3DDC97"
+yellowColor = "#FFB800"
+orangeColor = "#FF8A3D"
+violetColor = "#7C5CFF"
+grayColor = "#9A9AA5"
+chartCategoricalColors = ["#E10600", "#00E5FF", "#FFB800", "#7C5CFF", "#3DDC97", "#FF5FA2", "#4D8DFF", "#FF8A3D"]
+
+[theme.sidebar]
+backgroundColor = "#0A0A0C"
+secondaryBackgroundColor = "#17171B"
+borderColor = "#2A2A31"
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true

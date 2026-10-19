@@ -1,0 +1,3 @@
+# Optional extras. The app runs without them.
+umap-learn==0.5.12      # UMAP embedding on the Clustering tab (falls back to t-SNE)
+ydata-profiling         # extra profiling report from `python -m src.eda.report`

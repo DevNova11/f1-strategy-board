@@ -1,0 +1,97 @@
+/* F1 Strategy Board - a light layer on top of .streamlit/config.toml.
+   Fonts and colours come from the theme. This file only sets spacing, the page
+   header, KPI cards and the short notes that sit under each chart. */
+
+:root {
+  --f1-panel: #18181C;
+  --f1-border: #2B2B31;
+  --f1-text: #ECECEF;
+  --f1-soft: #C9C9D1;
+  --f1-muted: #92929C;
+  --f1-red: #E10600;
+  --f1-cyan: #00E5FF;
+  --f1-heading: 'Titillium Web', 'Segoe UI', sans-serif;
+}
+
+/* ---------- page chrome ---------- */
+[data-testid="stHeader"] { background: transparent; }
+[data-testid="stMainBlockContainer"] { padding-top: 2rem; padding-bottom: 4rem; max-width: 1320px; }
+
+/* ---------- page header ---------- */
+.f1-header { margin: 0 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--f1-border); position: relative; }
+.f1-header::after {                 /* the one red accent: a short rule under the title */
+  content: ""; position: absolute; left: 0; bottom: -1px; width: 56px; height: 3px; background: var(--f1-red);
+}
+.f1-title { font-family: var(--f1-heading); font-weight: 700; font-size: clamp(28px, 3.4vw, 38px);
+  line-height: 1.15; color: var(--f1-text); margin: 0 0 6px; }
+.f1-sub { color: var(--f1-muted); font-size: 16px; line-height: 1.5; margin: 0; max-width: 820px; }
+
+/* ---------- section headings ---------- */
+.f1-section { margin: 30px 0 8px; }
+.f1-section h3 { font-family: var(--f1-heading); font-weight: 600; font-size: 21px; margin: 0; padding: 0;
+  color: var(--f1-text); }
+.f1-section p { color: var(--f1-muted); font-size: 14.5px; margin: 2px 0 0; }
+
+/* ---------- KPI cards (st.metric) ---------- */
+[data-testid="stMetric"] {
+  background: var(--f1-panel);
+  border: 1px solid var(--f1-border) !important;
+  border-radius: 10px;
+  padding: 14px 16px 12px;
+}
+[data-testid="stMetricLabel"] p { font-size: 13.5px; font-weight: 500; color: var(--f1-muted); }
+[data-testid="stMetricLabel"], [data-testid="stMetricLabel"] > div { overflow: visible; white-space: normal; }
+[data-testid="stMetricValue"] { font-family: var(--f1-heading); font-weight: 700; font-size: clamp(26px, 2.4vw, 34px);
+  line-height: 1.15; }
+[data-testid="stMetricValue"], [data-testid="stMetricValue"] > div {
+  white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+[data-testid="stMetricDelta"] { font-size: 13px; }
+[data-testid="stMetricDelta"] > div { white-space: normal; overflow: visible; }
+
+/* ---------- the note under each chart ---------- */
+.f1-note { margin: 4px 2px 6px; font-size: 15px; line-height: 1.55; color: var(--f1-muted); }
+.f1-note strong { color: var(--f1-text); font-weight: 500; }
+
+/* ---------- small inline notice (synthetic data, coverage) ---------- */
+.f1-notice { display: flex; gap: 10px; align-items: baseline; color: var(--f1-soft); font-size: 14.5px;
+  line-height: 1.5; margin: 4px 0 14px; }
+.f1-pill { flex: 0 0 auto; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px;
+  border: 1px solid currentColor; }
+.f1-pill.synthetic { color: var(--f1-cyan); }
+.f1-pill.real { color: #3DDC97; }
+
+/* ---------- answer box on the overview ---------- */
+.f1-answer { border-left: 3px solid var(--f1-red); padding: 4px 0 4px 16px; margin: 6px 0 18px;
+  font-size: 17px; line-height: 1.6; color: var(--f1-soft); max-width: 900px; }
+.f1-answer b { color: var(--f1-text); font-weight: 600; }
+
+/* ---------- source cards ---------- */
+.f1-card { background: var(--f1-panel); border: 1px solid var(--f1-border); border-radius: 10px;
+  padding: 14px 16px; height: 100%; }
+.f1-card h4 { font-family: var(--f1-heading); margin: 8px 0 2px; font-size: 18px; padding: 0; }
+.f1-card p { color: var(--f1-muted); font-size: 14px; margin: 4px 0 0; }
+.f1-card .rows { font-family: var(--f1-heading); font-size: 26px; font-weight: 700; color: var(--f1-text); }
+.f1-card .meta { font-size: 12.5px; color: var(--f1-muted); }
+
+/* ---------- layer list ---------- */
+.f1-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 4px; }
+.f1-step { background: var(--f1-panel); border: 1px solid var(--f1-border); border-radius: 10px; padding: 12px 14px; }
+.f1-step i { font-style: normal; font-size: 12.5px; color: var(--f1-muted); }
+.f1-step b { display: block; font-family: var(--f1-heading); font-size: 17px; margin: 2px 0; }
+.f1-step span { color: var(--f1-muted); font-size: 13.5px; line-height: 1.45; display: block; }
+.f1-step code { color: var(--f1-cyan); background: transparent; font-size: 12.5px; padding: 0; }
+
+/* ---------- tabs ---------- */
+[data-testid="stTab"] p { font-size: 15.5px; font-weight: 500; }
+
+/* ---------- sidebar ---------- */
+.f1-brand { padding: 0 0 12px; margin-bottom: 8px; border-bottom: 1px solid var(--f1-border); }
+.f1-brand b { display: block; font-family: var(--f1-heading); font-size: 20px; font-weight: 700; color: var(--f1-text); }
+.f1-brand span { font-size: 13px; color: var(--f1-muted); }
+
+/* ---------- small screens ---------- */
+@media (max-width: 760px) {
+  [data-testid="stMainBlockContainer"] { padding-left: 1rem; padding-right: 1rem; padding-top: 3.4rem; }
+  .f1-sub { font-size: 15px; }
+  .f1-answer { font-size: 16px; }
+}

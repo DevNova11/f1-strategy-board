@@ -1,8 +1,8 @@
 """EDA step 5 - dimensionality reduction and clustering.
 
 Compress many operational variables into a few axes (PCA), look for structure a
-straight line would miss (t-SNE, or UMAP when installed), and group team-seasons
-into operating profiles with k-means, choosing k by silhouette score.
+straight line would miss (t-SNE, LLE, or UMAP when installed), and group
+team-seasons into operating profiles with k-means, choosing k by silhouette score.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE, LocallyLinearEmbedding, trustworthiness
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
@@ -95,11 +95,16 @@ def pca_biplot(out: PCAOutput, frame: pd.DataFrame, color: str = "team", hover: 
                              "PC2": f"PC2 ({out.explained[1]:.0%} of variance)", "team": "Team", "cluster": "Profile"})
     strength = (out.loadings["PC1"] ** 2 + out.loadings["PC2"] ** 2).sort_values(ascending=False)
     scale = float(np.abs(out.scores[["PC1", "PC2"]].to_numpy()).max()) * 0.9
+    placed: list[tuple[float, float]] = []
     for feature in strength.head(top_loadings).index:
         x, y = out.loadings.loc[feature, "PC1"] * scale, out.loadings.loc[feature, "PC2"] * scale
         fig.add_annotation(x=x, y=y, ax=0, ay=0, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
                            arrowhead=2, arrowwidth=1.5, arrowcolor=config.MUTED)
-        fig.add_annotation(x=x * 1.08, y=y * 1.08, text=label(feature).split(" (")[0], showarrow=False,
+        label_x, label_y = x * 1.08, y * 1.08
+        while any(abs(label_x - px_) < scale * 0.4 and abs(label_y - py_) < scale * 0.06 for px_, py_ in placed):
+            label_y += scale * 0.07                                # arrows in the same direction: stack their labels
+        placed.append((label_x, label_y))
+        fig.add_annotation(x=label_x, y=label_y, text=label(feature).split(" (")[0], showarrow=False,
                            font=dict(size=11, color=config.TEXT))
     pc1 = out.loadings["PC1"].abs().sort_values(ascending=False).head(3).index
     pc2 = out.loadings["PC2"].abs().sort_values(ascending=False).head(3).index
@@ -124,17 +129,37 @@ def embed(frame: pd.DataFrame, cols: list[str], method: str = "tsne", seed: int 
             coords = umap.UMAP(n_neighbors=neighbours, min_dist=0.3, random_state=seed).fit_transform(matrix)
         except Exception:  # not installed, or too few rows for the chosen settings
             used = "tsne"
+    if used == "lle":
+        neighbours = max(4, min(20, (len(frame) - 1) // 3))
+        coords = LocallyLinearEmbedding(n_neighbors=neighbours, n_components=2, eigen_solver="dense",
+                                        random_state=seed).fit_transform(matrix)
     if used == "tsne":
         perplexity = float(max(2, min(30, (len(frame) - 1) // 3)))
         coords = TSNE(n_components=2, perplexity=perplexity, init="pca", random_state=seed).fit_transform(matrix)
     return pd.DataFrame(coords, columns=["x", "y"], index=frame.index), used
 
 
+def embedding_quality(frame: pd.DataFrame, cols: list[str], labels: pd.Series, seed: int = config.SEED) -> pd.DataFrame:
+    """Score the PCA, t-SNE and LLE maps on the same rows.
+
+    ``trustworthiness`` (0-1) is the share of each point's nearest neighbours on
+    the map that are real neighbours in the full data. ``separation`` is the
+    silhouette score of the k-means groups measured on the 2-D map.
+    """
+    matrix, _ = prepare_matrix(frame, cols)
+    neighbours = min(10, (len(frame) - 1) // 2)
+    maps = {"PCA": run_pca(frame, cols, 2).scores.to_numpy(),
+            "t-SNE": embed(frame, cols, "tsne", seed)[0].to_numpy(),
+            "LLE": embed(frame, cols, "lle", seed)[0].to_numpy()}
+    return pd.DataFrame([{"method": name, "trustworthiness": trustworthiness(matrix, coords, n_neighbors=neighbours),
+                          "separation": silhouette_score(coords, labels)} for name, coords in maps.items()])
+
+
 def embedding_plot(frame: pd.DataFrame, coords: pd.DataFrame, method: str, color: str = "team",
                    hover: str | None = None) -> EDAResult:
-    """Scatter of a t-SNE or UMAP embedding."""
+    """Scatter of a t-SNE, UMAP or LLE embedding."""
     data = frame.join(coords)
-    name = {"tsne": "t-SNE", "umap": "UMAP"}[method]
+    name = {"tsne": "t-SNE", "umap": "UMAP", "lle": "LLE"}[method]
     fig = px.scatter(data, x="x", y="y", color=color if color in data else None,
                      color_discrete_map=TEAM_COLOUR_MAP if color == "team" else None,
                      hover_name=hover if hover in data else None,
@@ -144,7 +169,7 @@ def embedding_plot(frame: pd.DataFrame, coords: pd.DataFrame, method: str, color
     text = (f"{name} places rows with similar operating numbers next to each other. Only neighbourhoods are "
             f"meaningful: the axes have no units and distances between far-apart groups should not be read. "
             f"Tight single-colour islands mean a team operates in a consistent, distinctive way.")
-    return EDAResult(theme.finish(fig, f"{name} embedding", height=520), text)
+    return EDAResult(theme.finish(fig, f"Map made with {name}", height=520), text)
 
 
 @dataclass

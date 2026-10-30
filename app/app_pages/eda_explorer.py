@@ -265,15 +265,21 @@ if t_red.open:
             pca, clustered, "cluster" if colour != "Team" else "team", hover="constructor_name")), "red_biplot",
             table=True)
 
-        with st.expander("More charts: how much the map captures, choosing the number of groups, t-SNE map"):
+        with st.expander("More charts: how much the map captures, choosing the number of groups, t-SNE and LLE maps"):
             ui.show(ui.memo("red_scree", lambda: reduction.pca_scree(pca)), "red_scree")
             ui.show(ui.memo("red_sil", lambda: reduction.silhouette_plot(clusters)), "red_sil", table=True)
-            method = st.segmented_control("Map method", ["t-SNE", "UMAP"], default="t-SNE", key="red_method")
-            coords, used = ui.cached_embedding(v.key, tuple(feats), "umap" if method == "UMAP" else "tsne")
+            method = st.segmented_control("Map method", ["t-SNE", "LLE", "UMAP"], default="t-SNE", key="red_method")
+            coords, used = ui.cached_embedding(v.key, tuple(feats), {"LLE": "lle", "UMAP": "umap"}.get(method, "tsne"))
             if method == "UMAP" and used != "umap":
                 st.caption("UMAP is not installed (pip install -r requirements-optional.txt); showing t-SNE instead.")
             ui.show(reduction.embedding_plot(clustered, coords, used, "cluster" if colour != "Team" else "team",
                                              hover="constructor_name"), "red_embed")
+            st.caption("How well each 2-D map keeps the real structure. Trustworthiness: how many neighbours on the "
+                       "map are real neighbours (1 is perfect). Separation: how far apart the groups sit on the map.")
+            st.dataframe(ui.memo("red_quality", lambda: reduction.embedding_quality(ts, feats, clusters.labels)),
+                         hide_index=True,
+                         column_config={"method": "Map", "separation": st.column_config.NumberColumn("Separation", format="%.2f"),
+                                        "trustworthiness": st.column_config.NumberColumn("Trustworthiness", format="%.2f")})
 
 # --------------------------------------------------------------------- report
 if t_rep.open:

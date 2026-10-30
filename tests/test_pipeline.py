@@ -122,3 +122,14 @@ def test_clustering_picks_k_by_silhouette(tables: pipeline.Tables) -> None:
     assert out.best_k == int(out.scores.loc[out.scores["silhouette"].idxmax(), "k"])
     assert out.labels.nunique() == out.best_k
     assert out.scores["silhouette"].between(-1, 1).all()
+
+
+def test_lle_map_and_quality_scores(tables: pipeline.Tables) -> None:
+    frame, cols = tables.team_season, reduction.PROFILE_FEATURES
+    coords, used = reduction.embed(frame, cols, "lle")
+    assert used == "lle" and coords.shape == (len(frame), 2) and coords.notna().all().all()
+    labels = reduction.kmeans_profiles(frame, cols).labels
+    scores = reduction.embedding_quality(frame, cols, labels)
+    assert list(scores["method"]) == ["PCA", "t-SNE", "LLE"]
+    assert scores["trustworthiness"].between(0, 1).all()
+    assert scores["separation"].between(-1, 1).all()
